@@ -1,0 +1,18 @@
+{
+  "environment": "test",
+  "app": {
+    "host": "http://ganga.impingesolutions.com/projects/web/Arnaud_Lachaume/Prestashop/Source/prestashop/"
+  },
+  "api": {
+    "id": "app-2",
+    "key": "przbnuxvogf6th879kl30wi5ycje2sad41mq2"
+    
+  },
+  "sso": {
+        "enabled": true,
+        "slo_enabled": true,
+        "init_path": "module/maestranointegration/init",
+        "consume_path": "module/maestranointegration/consume",
+        "creation_mode": "virtual"
+    }
+}

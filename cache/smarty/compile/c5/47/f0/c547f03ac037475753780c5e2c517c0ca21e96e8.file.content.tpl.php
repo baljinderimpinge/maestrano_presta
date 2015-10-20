@@ -1,0 +1,39 @@
+<?php /* Smarty version Smarty-3.1.19, created on 2015-10-13 02:36:57
+         compiled from "E:\wwwroot\projects\web\Arnaud_Lachaume\Prestashop\Source\prestashop\admin\themes\default\template\controllers\localization\content.tpl" */ ?>
+<?php /*%%SmartyHeaderCode:9196561cd0b96b8168-60487736%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
+$_valid = $_smarty_tpl->decodeProperties(array (
+  'file_dependency' => 
+  array (
+    'c547f03ac037475753780c5e2c517c0ca21e96e8' => 
+    array (
+      0 => 'E:\\wwwroot\\projects\\web\\Arnaud_Lachaume\\Prestashop\\Source\\prestashop\\admin\\themes\\default\\template\\controllers\\localization\\content.tpl',
+      1 => 1440044012,
+      2 => 'file',
+    ),
+  ),
+  'nocache_hash' => '9196561cd0b96b8168-60487736',
+  'function' => 
+  array (
+  ),
+  'variables' => 
+  array (
+    'localization_form' => 0,
+    'localization_options' => 0,
+  ),
+  'has_nocache_code' => false,
+  'version' => 'Smarty-3.1.19',
+  'unifunc' => 'content_561cd0b96e65f2_10620663',
+),false); /*/%%SmartyHeaderCode%%*/?>
+<?php if ($_valid && !is_callable('content_561cd0b96e65f2_10620663')) {function content_561cd0b96e65f2_10620663($_smarty_tpl) {?>
+
+<?php if (isset($_smarty_tpl->tpl_vars['localization_form']->value)) {?><?php echo $_smarty_tpl->tpl_vars['localization_form']->value;?>
+<?php }?>
+<?php if (isset($_smarty_tpl->tpl_vars['localization_options']->value)) {?><?php echo $_smarty_tpl->tpl_vars['localization_options']->value;?>
+<?php }?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#PS_CURRENCY_DEFAULT').change(function(e) {
+			alert('Before changing the default currency, we strongly recommend that you enable maintenance mode because any change on default currency requires manual adjustment of the price of each product');
+		});
+	});
+</script><?php }} ?>
