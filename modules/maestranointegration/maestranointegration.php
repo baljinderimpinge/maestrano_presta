@@ -39,8 +39,9 @@ class MaestranoIntegration extends Module
 	
 	public function __construct()
 	{			
+		
 		$this->name = 'maestranointegration';
-		$this->tab = 'administration11';
+		$this->tab = 'administration';
 		$this->version = '1.6.4';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
@@ -48,16 +49,13 @@ class MaestranoIntegration extends Module
 		
 		// Check the Maestrano class exit othewise throws error
 		if (class_exists($this->maestranoClass)) 
-		{			
-			// Include the Maestrano config file.			
-			Maestrano::configure(dirname(__FILE__) . '/'.$this->maestranoConfig);
+		{		
 			$mn = new MaestranoSso();		
 		}
 		else{
 			$this->warning = $this->l($this->maestranoClass." Class doesn't Exist.");			
 		}
 		
-	
 		parent::__construct();
 
 		$this->displayName = $this->l('Maestrano integration');
@@ -78,11 +76,23 @@ class MaestranoIntegration extends Module
 	 
 	public function install()
 	{
-		if (!parent::install())
-			return false;	
-		return true;
-	}
+		if (
+				!parent::install() 
+				|| !$this->registerHook('actionCustomerAccountAdd') 				
+				|| !$this->registerHook('actionObjectCustomerUpdateAfter')	
+														
+				|| !$this->registerHook('actionObjectTaxUpdateAfter')		
+				|| !$this->registerHook('actionObjectTaxAddAfter')		 
+				|| !$this->registerHook('actionObjectTaxDeleteAfter')	
+					 
+				|| !$this->registerHook('actionObjectProductAddAfter')		
+				|| !$this->registerHook('actionObjectProductUpdateAfter')		
+				|| !$this->registerHook('actionObjectProductDeleteAfter')		
+		)
+			return false;
 		
+		return true;
+	}	
 	
 	/**
 	 * Uninstall the Prestashop Module
@@ -94,7 +104,7 @@ class MaestranoIntegration extends Module
 		$this->_clearCache('*');
 
 		return parent::uninstall();
-	}
+	}	
 	
 	/**
 	 * Configuartion page in admin panel for module settings
@@ -112,5 +122,64 @@ class MaestranoIntegration extends Module
 		
 		return $this->_html;
 	}
+	
+	// Hook for the Add Customer at Maestrano	
+	public function hookActionCustomerAccountAdd($parames)
+	{		
+		$CustomerMapper = new CustomerMapper();		
+		$CustomerMapper->processLocalUpdate($parames['newCustomer'] ,true, false);	
+	}
+	
+	// Hook for the Update Customer at Maestrano	
+	public function hookActionObjectCustomerUpdateAfter($params) 
+	{				
+		$CustomerMapper = new CustomerMapper();
+		$CustomerMapper->processLocalUpdate($params['object'] ,true, false);	
+	}
+	
+	// Hook for the Update Tax at Maestrano	
+	public function hookActionObjectTaxUpdateAfter($params)
+	{	
+		$TaxMapper = new TaxMapper();
+		$TaxMapper->processLocalUpdate($params['object'] ,true, false);
+	}
+	
+	// Hook for the Add Tax at Maestrano
+	public function hookActionObjectTaxAddAfter($params)
+	{
+		$TaxMapper = new TaxMapper();
+		$TaxMapper->processLocalUpdate($params['object'] ,true, false);
+	}
+	
+	// Hook for the Delete Tax at Maestrano
+	public function hookActionObjectTaxDeleteAfter($params)
+	{		
+		$TaxMapper = new TaxMapper();
+		$TaxMapper->processLocalUpdate($params['object'], false, true);
+	}
+	
+	// Hook for the Add Product at Maestrano
+	public function hookActionObjectProductAddAfter($params)
+	{
+		
+		$ProductMapper = new ProductMapper();
+		$ProductMapper->processLocalUpdate($params['object'], true, false);
+	}
+	
+	// Hook for the Update Product at Maestrano
+	public function hookActionObjectProductUpdateAfter($params)
+	{		
+		$ProductMapper = new ProductMapper();
+		$ProductMapper->processLocalUpdate($params['object'], true, false);
+	}
+		
+	// Hook for the Delete Product at Maestrano
+	public function hookActionObjectProductDeleteAfter($params)
+	{
+		
+	}
+	
+	
+	
 
 }	

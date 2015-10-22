@@ -36,14 +36,25 @@ class MaestranoSso extends ModuleAdminController
 		{			
 			if(!$this->isAdminLogged())
 			{
-				$samlController = array('init','consume');	
-								
-				if (!in_array(Tools::getValue('controller'), $samlController)) 
-				{	
-					// calling the function generate the cookie for admin directory			
-					$this->cookieForAdminDirectory();
+				 //$samlController = array('init','consume')
+				 //Tools::getValue('controller');
+				 //if (!in_array(Tools::getValue('controller'), $samlController)) 
+				 
+				 
+				 $adminDir = $this->cookieForAdminDirectory();
+				 
+				 if($adminDir != "" AND strpos($adminDir, "admin") !== false)
+				 {
+					 				 
+					// Write cookie for the Admin directory
+					$cookie = new Cookie('psAdDir');
+					$cookie->admin_directory = $adminDir;
+					$cookie->write(); 
+					
+					// Redirect to Masterano
 					Tools::redirect(Tools::getCurrentUrlProtocolPrefix().Tools::getShopDomain().__PS_BASE_URI__.Maestrano::sso()->getInitPath());
-				}							
+				 }
+						
 			}
 		}
 	}		
@@ -86,11 +97,6 @@ class MaestranoSso extends ModuleAdminController
 		
 		$pageURL = str_replace(Tools::getCurrentUrlProtocolPrefix().Tools::getShopDomain().__PS_BASE_URI__,'',$pageURL);
 		$pageURL = str_replace(basename($pageURL),'',$pageURL);
-		
-		// Write cookie for the Admin directory
-		$cookie = new Cookie('psAdDir');
-		$cookie->admin_directory = $pageURL;
-		$cookie->write(); 
 		
 		return $pageURL;
 	}

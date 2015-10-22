@@ -1,6 +1,7 @@
 <?php
 
 class UserMapper extends BaseMapper {
+	
   public function __construct() {
     parent::__construct();
 

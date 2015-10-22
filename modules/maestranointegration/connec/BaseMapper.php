@@ -1,15 +1,15 @@
 <?php
 
 /**
-* Map Connec Resource representation to/from vTiger Model
+* Map Connec Resource representation Prestashop Model
 * You need to extend this class an implement the following methods:
-* - getId($model) Returns the vTiger entity local id
-* - loadModelById($local_id) Loads the vTiger entity by its id
-* - mapConnecResourceToModel($resource_hash, $model) Maps the Connec resource to the vTiger entity
-* - mapModelToConnecResource($model) Maps the vTiger entity into a Connec resource
-* - persistLocalModel($model) Saves the vTiger entity
-* - matchLocalModel($resource_hash) (Optional) Returns an vTiger entity matched by attributes
+* - getId($model) Returns the Prestashop entity local id
+* - loadModelById($local_id) Loads the Prestashop entity by its id
+* - mapConnecResourceToModel($resource_hash, $model) Maps the Connec resource to the Prestashop entity
+* - mapModelToConnecResource($model) Maps the Prestashop entity into a Connec resource
+* - matchLocalModel($resource_hash) (Optional) Returns an Prestashop entity matched by attributes
 */
+
 abstract class BaseMapper {
   private $_connec_client;
 
@@ -23,7 +23,7 @@ abstract class BaseMapper {
 
   public function __construct() {
     $this->_connec_client = new Maestrano_Connec_Client();
-    $this->_date_format = DateTimeField::getPHPDateFormat();
+    $this->_date_format = DateTime::ISO8601;
   }
 
   protected function is_set($variable) {
@@ -60,16 +60,12 @@ abstract class BaseMapper {
   abstract protected function loadModelById($local_id);
 
   // Overwrite me!
-  // Map the Connec resource attributes onto the vTiger model
+  // Map the Connec resource attributes onto the Prestashop model
   abstract protected function mapConnecResourceToModel($resource_hash, $model);
 
   // Overwrite me!
-  // Map the vTiger model to a Connec resource hash
+  // Map the Prestashop model to a Connec resource hash
   abstract protected function mapModelToConnecResource($model);
-
-  // Overwrite me!
-  // Persist the vTiger model
-  abstract protected function persistLocalModel($model, $resource_hash);
 
   // Overwrite me!
   // Optional: Match a local Model from hash attributes
@@ -134,6 +130,7 @@ abstract class BaseMapper {
 
   // Fetch and persist a Connec! resounce by id
   public function fetchConnecResource($entity_id) {
+	  die($entity_id);
     error_log("fetch connec resource entity_name=$this->connec_entity_name, entity_id=$entity_id");
 
     $msg = $this->_connec_client->get("$this->connec_resource_endpoint/$entity_id");
@@ -149,7 +146,7 @@ abstract class BaseMapper {
     return false;
   }
 
-  // Persist a list of Connec Resources as vTiger Models
+  // Persist a list of Connec Resources as Prestashop Models
   public function persistAll($resources_hash) {
     if(!is_null($resources_hash)) {
       // If this is an associative array, map its content
@@ -171,7 +168,7 @@ abstract class BaseMapper {
     }
   }
 
-  // Map a Connec Resource to an vTiger Model
+  // Map a Connec Resource to an Prestashop Model
   public function saveConnecResource($resource_hash, $persist=true, $model=null, $retry=true) {
     if(!$this->validate($resource_hash)) { return null; }
     
@@ -193,8 +190,6 @@ abstract class BaseMapper {
 
       // Save and map the Model id to the Connec resource id
       if($persist) {
-        error_log("persistLocalModel entity=$this->connec_entity_name");
-        $this->persistLocalModel($model, $resource_hash);
         $this->findOrCreateIdMap($resource_hash, $model);
       }
 
@@ -210,7 +205,7 @@ abstract class BaseMapper {
     return null;
   }
 
-  // Map a Connec Resource to an vTiger Model
+  // Map a Connec Resource to an Prestashop Model
   public function findOrCreateIdMap($resource_hash, $model) {
     $local_id = $this->getId($model);
     error_log("findOrCreateIdMap entity=$this->connec_entity_name, local_id=$local_id, entity_id=" . $resource_hash['id']);
@@ -233,6 +228,7 @@ abstract class BaseMapper {
   // $pushToConnec: option to notify Connec! of the model update
   // $delete:       option to soft delete the local entity mapping amd ignore further Connec! updates
   public function processLocalUpdate($model, $pushToConnec=true, $delete=false, $saveResult=false) {
+
     $pushToConnec = $pushToConnec && Maestrano::param('connec.enabled');
 
     error_log("process local update entity=$this->connec_entity_name, local_id=" . $this->getId($model) . ", pushToConnec=$pushToConnec, delete=$delete");
@@ -240,7 +236,7 @@ abstract class BaseMapper {
     if($delete) { $this->flagAsDeleted($model); }
   }
 
-  // Find an vTiger entity matching the Connec resource or initialize a new one
+  // Find an Prestashop entity matching the Connec resource or initialize a new one
   protected function findOrInitializeModel($resource_hash) {
     $model = null;
 
@@ -277,7 +273,7 @@ abstract class BaseMapper {
     return $model;
   }
 
-  // Transform an vTiger Model into a Connec Resource and push it to Connec
+  // Transform an Prestashop Model into a Connec Resource and push it to Connec
   // If the $saveResult parameter is set to true, the Connec! result is persisted
   protected function pushToConnec($model, $saveResult=false) {
     error_log("push entity to connec entity=$this->connec_entity_name, local_id=" . $this->getId($model));
