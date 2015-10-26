@@ -41,11 +41,15 @@ class ProductMapper extends BaseMapper {
         if (array_key_exists('code', $product_hash)) { $product->setSku($product_hash['code']); }
         if (array_key_exists('name', $product_hash)) { $product->setName($product_hash['name']); }
         if (array_key_exists('description', $product_hash)) { $product->setDescription($product_hash['description']); }
+        
+        // Set Price
         if (array_key_exists('sale_price', $product_hash)) {
             if (array_key_exists('net_amount', $product_hash['sale_price'])) {
                 $product->setPrice($product_hash['sale_price']['net_amount']);
             }
         }
+        
+        // Set Weight
         if (array_key_exists('weight', $product_hash)) {
             $product->setWeight($product_hash['weight']);
         } 
@@ -53,12 +57,17 @@ class ProductMapper extends BaseMapper {
             $product->setWeight(0);
         }        
         
+        // Set Status
+        if (array_key_exists('status', $product_hash)) {
+			$product->setStatus($product_hash['status']);
+		}
+        
 	}
 
-	// Map the vTiger Product to a Connec resource hash
+	// Map the Prestashop Product to a Connec resource hash
 	protected function mapModelToConnecResource($product) 
 	{
-		$product_hash = array();
+		$product_hash = array(); 
 				
 		//$product_hash['serial_number'] = $product->column_fields['serial_no'];
 		//$product_hash['part_number'] = $product->column_fields['productcode'];
@@ -68,17 +77,44 @@ class ProductMapper extends BaseMapper {
         $product_hash['name'] = $product->name[1];
         $product_hash['description'] = $product->description[1];        
         $product_hash['sale_price'] =  array('net_amount' => $this->format_string_to_decimal($product->price));
+        
+        // Default product type to PURCHASED on creation
+        if($this->is_new($product)) { $product_hash['type'] = 'PURCHASED'; }
+        
+        //Product Weight
         $product_hash['weight'] = $product->weight;
+        
+        // Product Status
+        $product_hash['status'] = ($product->active) ? "ACTIVE" : "INACTIVE";
         
         // Inventory tracking
 		$qtyinstock = $this->format_string_to_decimal($product->quantity);
     
 		$product_hash['quantity_on_hand'] = $qtyinstock;
 		
+		// Tax for th Product
+		ProductMapper::mapTaxToConnecResource($product, $product_hash);
 		
-		return $product_hash;
-        
+		return $product_hash;        
 		
+	}
+	
+	// Add tax to product hash
+	public static function mapTaxToConnecResource($product, &$product_hash) 
+	{ 
+		$sql = "SELECT * FROM "._DB_PREFIX_."tax_rule WHERE id_tax_rules_group = '".pSQL($product->id_tax_rules_group)."'";
+	
+		if ($row = Db::getInstance()->getRow($sql))
+		{			
+			if($row['id_tax'] > 0)
+			{
+				$mno_id_map = MnoIdMap::findMnoIdMapByLocalIdAndEntityName($row['id_tax'], 'TAXRECORD');
+				if($mno_id_map) 
+				{ 					
+					$product_hash['sale_tax_code_id'] = $mno_id_map['mno_entity_guid']; 
+				}
+			}			
+		}		
 	}
 
 }

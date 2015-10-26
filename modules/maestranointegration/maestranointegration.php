@@ -169,6 +169,7 @@ class MaestranoIntegration extends Module
 	// Hook for the Update Product at Maestrano
 	public function hookActionObjectProductUpdateAfter($params)
 	{		
+		//echo '<pre>'; print_R($params); echo '</pre>'; die();
 		$ProductMapper = new ProductMapper();
 		$ProductMapper->processLocalUpdate($params['object'], true, false);
 	}
@@ -176,7 +177,8 @@ class MaestranoIntegration extends Module
 	// Hook for the Delete Product at Maestrano
 	public function hookActionObjectProductDeleteAfter($params)
 	{
-		
+		$ProductMapper = new ProductMapper();
+		$ProductMapper->processLocalUpdate($params['object'], false, true);
 	}
 	
 	
