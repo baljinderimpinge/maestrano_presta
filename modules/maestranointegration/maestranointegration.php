@@ -49,7 +49,7 @@ class MaestranoIntegration extends Module
 		
 		// Check the Maestrano class exit othewise throws error
 		if (class_exists($this->maestranoClass)) 
-		{		
+		{		 
 			$mn = new MaestranoSso();		
 		}
 		else{
@@ -78,6 +78,9 @@ class MaestranoIntegration extends Module
 	{
 		if (
 				!parent::install() 
+				
+				|| !$this->_createTabels() 
+				
 				|| !$this->registerHook('actionCustomerAccountAdd') 				
 				|| !$this->registerHook('actionObjectCustomerUpdateAfter')	
 														
@@ -88,11 +91,39 @@ class MaestranoIntegration extends Module
 				|| !$this->registerHook('actionObjectProductAddAfter')		
 				|| !$this->registerHook('actionObjectProductUpdateAfter')		
 				|| !$this->registerHook('actionObjectProductDeleteAfter')		
+				
+				|| !$this->registerHook('actionObjectOrderAddAfter')	
+				|| !$this->registerHook('actionObjectOrderInvoiceAddAfter')	
+					
+				|| !$this->registerHook('actionOrderStatusPostUpdate')		
 		)
 			return false;
 		
 		return true;
 	}	
+	
+	/**
+	 * Create the table mno_id_map
+	 *
+	 * @return flag as true, false
+	*/
+	public function _createTabels()
+	{
+		$sql = "CREATE TABLE IF NOT EXISTS `mno_id_map` (
+			`mno_entity_guid` varchar(255) NOT NULL,
+			`mno_entity_name` varchar(255) NOT NULL,
+			`app_entity_id` varchar(255) NOT NULL,
+			`app_entity_name` varchar(255) NOT NULL,
+			`db_timestamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+			`deleted_flag` int(1) NOT NULL DEFAULT '0',
+			KEY `mno_id_map_mno_key` (`mno_entity_guid`,`mno_entity_name`),
+			KEY `mno_id_map_app_key` (`app_entity_id`,`app_entity_name`)
+		) 
+		ENGINE=MyISAM DEFAULT CHARSET=latin1;";
+		
+		$result = Db::getInstance()->Execute($sql);
+		return $result; 
+	}
 	
 	/**
 	 * Uninstall the Prestashop Module
@@ -113,14 +144,16 @@ class MaestranoIntegration extends Module
 	*/
 	public function getContent()
 	{
+		$html = '';
+		
 		if (Tools::isSubmit('btnSubmit'))
 		{
-			$this->_html .= '<br/>';
+			$html .= '<br/>';
 		}
 		else
-			$this->_html .= '<br/>';
+			$html .= '<br/>';
 		
-		return $this->_html;
+		return $html;
 	}
 	
 	// Hook for the Add Customer at Maestrano	
@@ -169,7 +202,6 @@ class MaestranoIntegration extends Module
 	// Hook for the Update Product at Maestrano
 	public function hookActionObjectProductUpdateAfter($params)
 	{		
-		//echo '<pre>'; print_R($params); echo '</pre>'; die();
 		$ProductMapper = new ProductMapper();
 		$ProductMapper->processLocalUpdate($params['object'], true, false);
 	}
@@ -181,7 +213,27 @@ class MaestranoIntegration extends Module
 		$ProductMapper->processLocalUpdate($params['object'], false, true);
 	}
 	
+	// Hook for the order create
+	public function hookActionObjectOrderAddAfter($params)
+	{		
+		$SalesOrderMapper = new SalesOrderMapper();
+		$SalesOrderMapper->processLocalUpdate($params['object'], true, false);	
+		
+	}	
 	
+	// Hook for the order status update
+	public function hookActionOrderStatusPostUpdate($params)
+	{
+		//$OrderStatusUpdateMapper = new OrderStatusUpdateMapper();
+		//$OrderStatusUpdateMapper->processLocalUpdate($params, true, false);	
+	}	
 	
+	// Hook for the Invoice create after the order	
+	public function hookActionObjectOrderInvoiceAddAfter($params)
+	{		
+		$InvoiceMapper = new InvoiceMapper();  
+		$InvoiceMapper->processLocalUpdate($params, true, false);	
+		
+	}	
 
 }	

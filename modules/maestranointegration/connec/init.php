@@ -6,6 +6,9 @@ require_once (dirname(__FILE__) . '/BaseMapper.php');
 require_once (dirname(__FILE__) . '/CustomerMapper.php');
 require_once (dirname(__FILE__) . '/TaxMapper.php');
 require_once (dirname(__FILE__) . '/ProductMapper.php');
+require_once (dirname(__FILE__) . '/SalesOrderMapper.php');
+require_once (dirname(__FILE__) . '/InvoiceMapper.php');
+//require_once (dirname(__FILE__) . '/OrderStatusUpdateMapper.php');
 
 
 // Include 

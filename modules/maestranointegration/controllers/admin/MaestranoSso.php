@@ -32,6 +32,7 @@ class MaestranoSso extends ModuleAdminController
 {
 	public function __construct() 
 	{
+		
 		if (Maestrano::sso()->isSsoEnabled()) 
 		{			
 			if(!$this->isAdminLogged())
