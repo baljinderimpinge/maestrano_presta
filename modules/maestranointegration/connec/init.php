@@ -9,6 +9,7 @@ require_once (dirname(__FILE__) . '/ProductMapper.php');
 require_once (dirname(__FILE__) . '/SalesOrderMapper.php');
 require_once (dirname(__FILE__) . '/InvoiceMapper.php');
 //require_once (dirname(__FILE__) . '/OrderStatusUpdateMapper.php');
+require_once (dirname(__FILE__) . '/PaymentMapper.php');
 
 
 // Include 

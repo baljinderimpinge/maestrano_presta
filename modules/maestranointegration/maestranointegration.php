@@ -29,6 +29,8 @@ require_once (dirname(__FILE__) . '/init.php');
 if (!defined('_PS_VERSION_'))
 	exit;
 	
+	
+	
 class MaestranoIntegration extends Module
 {
 	protected static $cache_products;
@@ -40,8 +42,10 @@ class MaestranoIntegration extends Module
 	public function __construct()
 	{			
 		
+		
+		
 		$this->name = 'maestranointegration';
-		$this->tab = 'administration';
+		$this->tab = 'administration11';
 		$this->version = '1.6.4';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
@@ -50,7 +54,7 @@ class MaestranoIntegration extends Module
 		// Check the Maestrano class exit othewise throws error
 		if (class_exists($this->maestranoClass)) 
 		{		 
-			$mn = new MaestranoSso();		
+			//$mn = new MaestranoSso();		
 		}
 		else{
 			$this->warning = $this->l($this->maestranoClass." Class doesn't Exist.");			
@@ -96,6 +100,11 @@ class MaestranoIntegration extends Module
 				|| !$this->registerHook('actionObjectOrderInvoiceAddAfter')	
 					
 				|| !$this->registerHook('actionOrderStatusPostUpdate')		
+				
+				|| !$this->registerHook('actionPaymentCCAdd')	
+					
+				//|| !$this->registerHook('actionAdminLoginControllerSSO')		
+				|| !$this->registerHook('actionAdminLoginControllerSetMedia')		
 		)
 			return false;
 		
@@ -154,6 +163,14 @@ class MaestranoIntegration extends Module
 			$html .= '<br/>';
 		
 		return $html;
+	}
+	
+	
+	// Hook for the SSO Integration
+	public function hookActionAdminLoginControllerSetMedia(){
+		
+		$mn = new MaestranoSso();		
+		
 	}
 	
 	// Hook for the Add Customer at Maestrano	
@@ -231,9 +248,16 @@ class MaestranoIntegration extends Module
 	// Hook for the Invoice create after the order	
 	public function hookActionObjectOrderInvoiceAddAfter($params)
 	{		
+		//echo '<pre>'; print_R($params); echo '</pre>'; die();
 		$InvoiceMapper = new InvoiceMapper();  
-		$InvoiceMapper->processLocalUpdate($params, true, false);	
+		$InvoiceMapper->processLocalUpdate($params, true, false);			
 		
 	}	
-
+	
+	// Hook for the Payment Confirmation
+	public function hookActionPaymentCCAdd($params){				
+		
+		$PaymentMapper = new PaymentMapper();  
+		$PaymentMapper->processLocalUpdate($params, true, false);	
+	}
 }	
